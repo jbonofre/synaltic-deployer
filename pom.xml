@@ -11,7 +11,7 @@
     <modules>
         <module>api</module>
         <module>service</module>
-        <!-- <module>rest</module> -->
+        <module>rest</module>
         <!-- <module>command</module> -->
     </modules>
 
