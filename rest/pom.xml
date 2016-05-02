@@ -20,6 +20,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.synaltic.deployer</groupId>
+            <artifactId>api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
             <version>${cxf.version}</version>
