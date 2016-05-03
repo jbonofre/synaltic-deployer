@@ -188,7 +188,8 @@
                         </Import-Package>
                         <Private-Package>
                             com.synaltic.deployer.service.impl,
-                            org.eclipse.aether*
+                            org.eclipse.aether*,
+                            org.apache.maven.repository.internal
                         </Private-Package>
                     </instructions>
                 </configuration>
