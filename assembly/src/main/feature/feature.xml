@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features name="synaltic-deployer-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.0.0 http://karaf.apache.org/xmlns/features/v1.0.0">
+
+    <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</repository>
+
+    <feature name="synaltic-deployer-service" version="${project.version}">
+        <bundle>mvn:com.synaltic.deployer/api/${project.version}</bundle>
+        <bundle>mvn:com.synaltic.deployer/service/${project.version}</bundle>
+    </feature>
+
+    <feature name="synaltic-deployer-rest" version="${project.version}">
+        <feature version="${cxf.version}">cxf-jaxrs</feature>
+        <feature version="${project.version}">synaltic-deployer-service</feature>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/2.4.6</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/2.4.6</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/2.4.6</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/2.4.6</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/2.4.6</bundle>
+        <bundle>mvn:com.synaltic.deployer/rest/${project.version}</bundle>
+    </feature>
+
+</features>

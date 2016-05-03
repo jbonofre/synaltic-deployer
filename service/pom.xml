@@ -140,20 +140,6 @@
             </exclusions>
         </dependency>
 
-        <!--
-        <dependency>
-            <groupId>org.apache.maven.wagon</groupId>
-            <artifactId>wagon-ssh</artifactId>
-            <version>${maven.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.codehaus.plexus</groupId>
-                    <artifactId>plexus-utils</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        -->
-
         <!-- Guava -->
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -161,10 +147,11 @@
             <version>19.0</version>
         </dependency>
 
-        <!-- OSGi -->
+        <!-- SLF4J -->
         <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>osgi.cmpn</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
 
         <!-- Testing -->
@@ -183,7 +170,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
-            <version>1.7.14</version>
+            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -196,10 +183,12 @@
                 <configuration>
                     <instructions>
                         <Import-Package>
-                            com.synaltic.deployer.api
+                            com.synaltic.deployer.api,
+                            org.slf4j;resolution:=optional
                         </Import-Package>
                         <Private-Package>
-                            com.synaltic.deployer.service.impl
+                            com.synaltic.deployer.service.impl,
+                            org.eclipse.aether*
                         </Private-Package>
                     </instructions>
                 </configuration>

@@ -13,7 +13,14 @@
         <module>service</module>
         <module>rest</module>
         <!-- <module>command</module> -->
+        <module>assembly</module>
     </modules>
+
+    <properties>
+        <cxf.version>3.1.5</cxf.version>
+        <slf4j.version>1.7.12</slf4j.version>
+        <bnd.version.policy>[$(version;==;$(@)),$(version;+;$(@)))</bnd.version.policy>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -21,12 +28,6 @@
                 <groupId>com.synaltic.deployer</groupId>
                 <artifactId>api</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.osgi</groupId>
-                <artifactId>osgi.cmpn</artifactId>
-                <version>6.0.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -40,6 +41,11 @@
                     <version>2.5.4</version>
                     <extensions>true</extensions>
                     <inherited>true</inherited>
+                    <configuration>
+                        <instructions>
+                            <_versionpolicy>${bnd.version.policy}</_versionpolicy>
+                        </instructions>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

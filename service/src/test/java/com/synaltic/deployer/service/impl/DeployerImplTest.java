@@ -1,8 +1,11 @@
 package com.synaltic.deployer.service.impl;
 
 import com.synaltic.deployer.api.Deployer;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Map;
 
 public class DeployerImplTest {
 
@@ -16,13 +19,40 @@ public class DeployerImplTest {
     }
 
     @Test
-    public void explodeKar() throws Exception {
-        deployer.explodeKar("mvn:org.apache.karaf.features/framework/4.0.4/kar", null);
+    public void explodeKarTest() throws Exception {
+        deployer.explodeKar("mvn:org.apache.karaf.features/framework/4.0.4/kar", "file:target/test/repository/kar");
     }
 
     @Test
     public void uploadArtifactTest() throws Exception {
         deployer.uploadArtifact("test", "test", "1.0-SNAPSHOT", "mvn:commons-lang/commons-lang/2.6", "file:target/test/repository");
+    }
+
+    @Test
+    public void mvnParseTest() throws Exception {
+        String mvnUrl = "mvn:testGroupId/testArtifactId/1.0";
+        Map<String, String> coordonates = DeployerImpl.parse(mvnUrl);
+        Assert.assertEquals("testGroupId", coordonates.get("groupId"));
+        Assert.assertEquals("testArtifactId", coordonates.get("artifactId"));
+        Assert.assertEquals("1.0", coordonates.get("version"));
+        Assert.assertEquals("jar", coordonates.get("extension"));
+        Assert.assertNull(coordonates.get("classifier"));
+
+        mvnUrl = "mvn:testGroupId/testArtifactId/1.0/kar";
+        coordonates = DeployerImpl.parse(mvnUrl);
+        Assert.assertEquals("testGroupId", coordonates.get("groupId"));
+        Assert.assertEquals("testArtifactId", coordonates.get("artifactId"));
+        Assert.assertEquals("1.0", coordonates.get("version"));
+        Assert.assertEquals("kar", coordonates.get("extension"));
+        Assert.assertNull(coordonates.get("classifier"));
+
+        mvnUrl = "mvn:testGroupId/testArtifactId/1.0/xml/features";
+        coordonates = DeployerImpl.parse(mvnUrl);
+        Assert.assertEquals("testGroupId", coordonates.get("groupId"));
+        Assert.assertEquals("testArtifactId", coordonates.get("artifactId"));
+        Assert.assertEquals("1.0", coordonates.get("version"));
+        Assert.assertEquals("xml", coordonates.get("extension"));
+        Assert.assertEquals("features", coordonates.get("classifier"));
     }
 
 }

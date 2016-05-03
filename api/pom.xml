@@ -21,7 +21,7 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Export-Package>com.synaltic.deployer.api;version=${project.version}</Export-Package>
+                        <Export-Package>com.synaltic.deployer.api</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

@@ -1,25 +1,25 @@
 package com.synaltic.deployer.rest;
 
 import com.synaltic.deployer.api.Deployer;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
-@Component
 @Path("/sdeployer")
 public class DeployerRest {
 
-    @Reference
     private Deployer deployer;
 
     @Path("/artifact/upload")
     @Consumes("application/json")
     @POST
-    public void uploadArtifact(UploadRequest request) {
-        // TODO
+    public void uploadArtifact(UploadRequest request) throws Exception {
+        deployer.uploadArtifact(request.getGroupId(),
+                request.getArtifactId(),
+                request.getVersion(),
+                request.getArtifactUrl(),
+                request.getRepositoryUrl());
     }
 
     @Path("/deploy/bundle")
@@ -64,6 +64,10 @@ public class DeployerRest {
                 request.getKarafName(),
                 request.getUser(),
                 request.getPassword());
+    }
+
+    public void setDeployer(Deployer deployer) {
+        this.deployer = deployer;
     }
 
 }
