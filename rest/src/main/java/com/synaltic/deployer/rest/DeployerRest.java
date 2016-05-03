@@ -1,14 +1,18 @@
 package com.synaltic.deployer.rest;
 
 import com.synaltic.deployer.api.Deployer;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
+@Component
 @Path("/sdeployer")
 public class DeployerRest {
 
+    @Reference
     private Deployer deployer;
 
     @Path("/artifact/upload")
@@ -62,7 +66,4 @@ public class DeployerRest {
                 request.getPassword());
     }
 
-    public void setDeployer(Deployer deployer) {
-        this.deployer = deployer;
-    }
 }

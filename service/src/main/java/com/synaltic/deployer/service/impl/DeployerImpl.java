@@ -2,30 +2,24 @@ package com.synaltic.deployer.service.impl;
 
 import com.google.common.io.Files;
 import com.synaltic.deployer.api.Deployer;
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
-import org.apache.commons.compress.utils.IOUtils;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.DefaultArtifact;
-import org.apache.maven.artifact.deployer.ArtifactDeployer;
-import org.apache.maven.artifact.deployer.DefaultArtifactDeployer;
-import org.apache.maven.artifact.factory.ArtifactFactory;
-import org.apache.maven.artifact.factory.DefaultArtifactFactory;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;
-import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
-import org.apache.maven.artifact.repository.DefaultArtifactRepository;
-import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
-import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
-import org.apache.maven.artifact.resolver.DefaultArtifactResolver;
-import org.apache.maven.project.MavenProjectBuilder;
-import org.apache.maven.project.ProjectBuilder;
-import org.apache.maven.repository.RepositorySystem;
-import org.codehaus.plexus.DefaultPlexusContainer;
-import org.codehaus.plexus.PlexusContainer;
+import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
+import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory;
+import org.eclipse.aether.deployment.DeployRequest;
+import org.eclipse.aether.impl.DefaultServiceLocator;
+import org.eclipse.aether.repository.LocalRepository;
+import org.eclipse.aether.repository.LocalRepositoryManager;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.spi.connector.ArtifactUpload;
+import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
+import org.eclipse.aether.spi.connector.transport.TransporterFactory;
+import org.eclipse.aether.transport.file.FileTransporterFactory;
+import org.eclipse.aether.transport.http.HttpTransporterFactory;
+import org.eclipse.aether.util.artifact.SubArtifact;
 
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
@@ -33,222 +27,79 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.*;
+import java.net.URI;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.jar.JarInputStream;
+import java.util.zip.ZipEntry;
 
 public class DeployerImpl implements Deployer {
 
-    private static final Pattern mvnPattern = Pattern.compile("mvn:([^/ ]+)/([^/ ]+)/([^/ ]*)(/([^/ ]+)(/([^/ ]+))?)?");
-
-    private List<ArtifactRepository> remoteRepos;
-
-    public DeployerImpl() {
-        ArtifactRepository central = new DefaultArtifactRepository("http://repo.maven.apache.org/maven2/", "http://repo.maven.apache.org/maven2/", new DefaultRepositoryLayout());
-        remoteRepos = new LinkedList<ArtifactRepository>();
-    }
-
     public void explodeKar(String artifactUrl, String repositoryUrl) throws Exception {
         File tempDirectory = Files.createTempDir();
-        File karFile = resolveFile(artifactUrl);
-        extract(new ZipArchiveInputStream(new FileInputStream(karFile)), tempDirectory);
-
-        ArtifactRepository remoteRepo = new DefaultArtifactRepository(repositoryUrl, repositoryUrl, new DefaultRepositoryLayout());
-        ArtifactDeployer deployer = new DefaultArtifactDeployer();
-        // deployer.deploy()
-
+        extract(artifactUrl, tempDirectory);
+        // upload kar content
     }
 
-    protected static boolean isMavenUrl(String name) {
-        Matcher m = mvnPattern.matcher(name);
-        return m.matches();
-    }
+    public void extract(String url, File baseDir) throws Exception {
+        InputStream is = null;
+        JarInputStream zipIs = null;
 
-    private File resolveFile(String url) {
-        File fileResolved = null;
+        File repoDir = new File(baseDir, "repository");
+        File resourceDir = new File(baseDir, "resource");
 
-        if (isMavenUrl(url)) {
-            fileResolved = new File(fromMaven(url));
-            ArtifactResolver artifactResolver = new DefaultArtifactResolver();
-            try {
-                Artifact artifactTemp = resourceToArtifact(url, false);
-                if (!fileResolved.exists()) {
-                    try {
-                        artifactResolver.resolve(artifactTemp, remoteRepos, null);
-                        fileResolved = artifactTemp.getFile();
-                    } catch (ArtifactResolutionException e) {
-
-                    } catch (ArtifactNotFoundException e) {
-
-                    }
-                }
-            } catch (Exception e) {
-
-            }
-        } else {
-            fileResolved = new File(url);
-        }
-
-        return fileResolved;
-    }
-
-    /**
-     * Convert a feature resourceLocation (bundle or configuration file) into an artifact.
-     *
-     * @param resourceLocation the feature resource location (bundle or configuration file).
-     * @param skipNonMavenProtocols flag to skip protocol different than mvn:
-     * @return the artifact corresponding to the resource.
-     */
-    protected Artifact resourceToArtifact(String resourceLocation, boolean skipNonMavenProtocols) throws Exception {
-        resourceLocation = resourceLocation.replace("\r\n", "").replace("\n", "").replace(" ", "").replace("\t", "");
-        final int index = resourceLocation.indexOf("mvn:");
-        if (index < 0) {
-            if (skipNonMavenProtocols) {
-                return null;
-            }
-            throw new IllegalArgumentException("Resource URL is not a Maven URL: " + resourceLocation);
-        } else {
-            resourceLocation = resourceLocation.substring(index + "mvn:".length());
-        }
-        // Truncate the URL when a '#', a '?' or a '$' is encountered
-        final int index1 = resourceLocation.indexOf('?');
-        final int index2 = resourceLocation.indexOf('#');
-        int endIndex = -1;
-        if (index1 > 0) {
-            if (index2 > 0) {
-                endIndex = Math.min(index1, index2);
-            } else {
-                endIndex = index1;
-            }
-        } else if (index2 > 0) {
-            endIndex = index2;
-        }
-        if (endIndex >= 0) {
-            resourceLocation = resourceLocation.substring(0, endIndex);
-        }
-        final int index3 = resourceLocation.indexOf('$');
-        if (index3 > 0) {
-            resourceLocation = resourceLocation.substring(0, index3);
-        }
-
-        //check if the resourceLocation descriptor contains also remote repository information.
-        ArtifactRepository repo = null;
-        if (resourceLocation.startsWith("http://")) {
-            final int repoDelimIntex = resourceLocation.indexOf('!');
-            String repoUrl = resourceLocation.substring(0, repoDelimIntex);
-
-            repo = new DefaultArtifactRepository(
-                    repoUrl,
-                    repoUrl,
-                    new DefaultRepositoryLayout());
-            resourceLocation = resourceLocation.substring(repoDelimIntex + 1);
-
-        }
-        String[] parts = resourceLocation.split("/");
-        String groupId = parts[0];
-        String artifactId = parts[1];
-        String version = null;
-        String classifier = null;
-        String type = "jar";
-        if (parts.length > 2) {
-            version = parts[2];
-            if (parts.length > 3) {
-                type = parts[3];
-                if (parts.length > 4) {
-                    classifier = parts[4];
-                }
-            }
-        }
-        ArtifactFactory factory = new DefaultArtifactFactory();
-        Artifact artifact = null;
-        System.out.println("GroupId: " + groupId);
-        System.out.println("ArtifactId: " + artifactId);
-        System.out.println("Version: " + version);
-        System.out.println("Type: " + type);
-        System.out.println("Classifier: " + classifier);
-        if (classifier == null) {
-            artifact = new DefaultArtifact(groupId, artifactId, version, "compile", type, "", null);
-            // artifact = factory.createProjectArtifact(groupId, artifactId, version, type);
-        } else {
-            artifact = factory.createArtifactWithClassifier(groupId, artifactId, version, type, classifier);
-        }
-        artifact.setRepository(repo);
-        return artifact;
-    }
-
-
-    /**
-         * Return a path for an artifact:
-         * - if the input is already a path (doesn't contain ':'), the same path is returned.
-         * - if the input is a Maven URL, the input is converted to a default repository location path, type and classifier
-         *   are optional.
-         *
-         * @param name artifact data
-         * @return path as supplied or a default Maven repository path
-         */
-    private static String fromMaven(String name) {
-        Matcher m = mvnPattern.matcher(name);
-        if (!m.matches()) {
-            return name;
-        }
-
-        StringBuilder b = new StringBuilder();
-        b.append(m.group(1));
-        for (int i = 0; i < b.length(); i++) {
-            if (b.charAt(i) == '.') {
-                b.setCharAt(i, '/');
-            }
-        }
-        b.append("/"); // groupId
-        String artifactId = m.group(2);
-        String version = m.group(3);
-        String extension = m.group(5);
-        String classifier = m.group(7);
-        b.append(artifactId).append("/"); // artifactId
-        b.append(version).append("/"); // version
-        b.append(artifactId).append("-").append(version);
-        if (present(classifier)) {
-            b.append("-").append(classifier);
-        }
-        if (present(classifier)) {
-            b.append(".").append(extension);
-        } else {
-            b.append(".jar");
-        }
-        return b.toString();
-    }
-
-    private static boolean present(String part) {
-        return part != null && !part.isEmpty();
-    }
-
-    private static void extract(ArchiveInputStream is, File targetDir) throws IOException {
         try {
-            targetDir.mkdirs();
-            ArchiveEntry entry = is.getNextEntry();
+            is = new URI(url).toURL().openStream();
+            repoDir.mkdirs();
+
+            zipIs = new JarInputStream(is);
+            boolean scanForRepos = true;
+
+            ZipEntry entry = zipIs.getNextEntry();
             while (entry != null) {
-                String name = entry.getName();
-                name = name.substring(name.indexOf("/") + 1);
-                File file = new File(targetDir, name);
-                if (entry.isDirectory()) {
-                    file.mkdirs();
+                if (entry.getName().startsWith("repository")) {
+                    String path = entry.getName().substring("repository/".length());
+                    File destFile = new File(repoDir, path);
+                    extract(zipIs, entry, destFile);
                 }
-                else {
-                    file.getParentFile().mkdirs();
-                    OutputStream os = new FileOutputStream(file);
-                    try {
-                        IOUtils.copy(is, os);
-                    }
-                    finally {
-                        IOUtils.closeQuietly(os);
-                    }
+
+                if (entry.getName().startsWith("resource")) {
+                    String path = entry.getName().substring("resource/".length());
+                    File destFile = new File(resourceDir, path);
+                    extract(zipIs, entry, destFile);
                 }
-                entry = is.getNextEntry();
+                entry = zipIs.getNextEntry();
+            }
+        } finally {
+            if (zipIs != null) {
+                zipIs.close();
+            }
+            if (is != null) {
+                is.close();
             }
         }
-        finally {
-            is.close();
+    }
+
+    private static File extract(InputStream is, ZipEntry zipEntry, File dest) throws Exception {
+        if (zipEntry.isDirectory()) {
+            dest.mkdirs();
+        } else {
+            dest.getParentFile().mkdirs();
+            FileOutputStream out = new FileOutputStream(dest);
+            copyStream(is, out);
+            out.close();
         }
+        return dest;
+    }
+
+    static long copyStream(InputStream input, OutputStream output) throws IOException {
+        byte[] buffer = new byte[10000];
+        long count = 0;
+        int n = 0;
+        while (-1 != (n = input.read(buffer))) {
+            output.write(buffer, 0, n);
+            count += n;
+        }
+        return count;
     }
 
     public void uploadArtifact(String groupId,
@@ -257,25 +108,39 @@ public class DeployerImpl implements Deployer {
                 String artifactUrl,
                 String repositoryUrl) throws Exception {
 
-        PlexusContainer container = new DefaultPlexusContainer();
+        // File artifactFile = File.createTempFile(artifactId, "jar");
+        File artifactFile = new File("/tmp/test.jar");
 
-        ArtifactRepositoryFactory repositoryFactory = (ArtifactRepositoryFactory) container.lookup(ArtifactRepositoryFactory.ROLE);
+        FileOutputStream os = new FileOutputStream(artifactFile);
+        copyStream(new URI(artifactUrl).toURL().openStream(), os);
+        os.flush();
+        os.close();
 
-        ArtifactFactory artifactFactory = (ArtifactFactory) container.lookup(ArtifactFactory.ROLE);
 
-        ProjectBuilder projectBuilder = container.lookup(ProjectBuilder.class);
+        DefaultServiceLocator defaultServiceLocator = MavenRepositorySystemUtils.newServiceLocator();
+        defaultServiceLocator.addService(RepositoryConnectorFactory.class, BasicRepositoryConnectorFactory.class);
+        defaultServiceLocator.addService(TransporterFactory.class, FileTransporterFactory.class);
+        defaultServiceLocator.addService(TransporterFactory.class, HttpTransporterFactory.class);
 
-        RepositorySystem repositorySystem = container.lookup(RepositorySystem.class);
+        RepositorySystem repositorySystem = defaultServiceLocator.getService(RepositorySystem.class);
 
-        ArtifactRepository localRepository = repositorySystem.createDefaultLocalRepository();
-        ArtifactRepository remoteRepository = repositorySystem.createArtifactRepository("remote", repositoryUrl, new DefaultRepositoryLayout(), new ArtifactRepositoryPolicy(), new ArtifactRepositoryPolicy());
+        DefaultRepositorySystemSession repositorySystemSession = MavenRepositorySystemUtils.newSession();
+        LocalRepository localRepository = new LocalRepository(System.getProperty("user.home") + "/.m2/repository");
+        LocalRepositoryManager localRepositoryManager = repositorySystem.newLocalRepositoryManager(repositorySystemSession, localRepository);
+        repositorySystemSession.setLocalRepositoryManager(localRepositoryManager);
+        repositorySystemSession.setTransferListener(new ConsoleTransferListener(System.out));
+        repositorySystemSession.setRepositoryListener(new ConsoleRepositoryListener(System.out));
 
-        Artifact artifact = artifactFactory.createProjectArtifact(groupId, artifactId, version);
+        RemoteRepository remoteRepository = new RemoteRepository.Builder("sdeployer", "default", repositoryUrl).build();
 
-        ArtifactDeployer artifactDeployer = new DefaultArtifactDeployer();
-        File artifactFile = resolveFile(artifactUrl);
-        artifact.setFile(artifactFile);
-        artifactDeployer.deploy(artifactFile, artifact, remoteRepository, localRepository);
+        Artifact artifact = new DefaultArtifact(groupId, artifactId, "jar", version);
+        artifact = artifact.setFile(artifactFile);
+
+        DeployRequest deployRequest = new DeployRequest();
+        deployRequest.addArtifact(artifact);
+        deployRequest.setRepository(remoteRepository);
+
+        repositorySystem.deploy(repositorySystemSession, deployRequest);
     }
 
     public void assembleFeature(String groupId,
