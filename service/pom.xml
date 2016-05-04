@@ -15,9 +15,23 @@
     <packaging>bundle</packaging>
 
     <properties>
-        <maven.version>3.2.5</maven.version>
+        <maven.version>3.1.1</maven.version>
         <aether.version>1.0.1.v20141111</aether.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>spring-ebr-repository</id>
+            <name>Spring EBR Repository</name>
+            <url>http://repository.springsource.com/maven/bundles/external</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -25,6 +39,56 @@
             <artifactId>api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+            <version>${maven.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-compat</artifactId>
+            <version>${maven.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>wagon-provider-api</artifactId>
+                    <groupId>org.apache.maven.wagon</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-embedder</artifactId>
+            <version>${maven.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-aether-provider</artifactId>
+            <version>${maven.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-connector-wagon</artifactId>
+            <version>0.9.0.M2</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>wagon-provider-api</artifactId>
+                    <groupId>org.apache.maven.wagon</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-provider-api</artifactId>
+            <version>2.4</version>
+        </dependency>
+
+        <!-- Eclise Aether -->
         <dependency>
             <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-api</artifactId>
@@ -52,11 +116,6 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.aether</groupId>
-            <artifactId>aether-transport-classpath</artifactId>
-            <version>${aether.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-transport-file</artifactId>
             <version>${aether.version}</version>
         </dependency>
@@ -64,87 +123,107 @@
             <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-transport-http</artifactId>
             <version>${aether.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>httpclient</artifactId>
+                    <groupId>org.apache.httpcomponents</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient-osgi</artifactId>
+            <version>4.2.5</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-codec</artifactId>
+                    <groupId>commons-codec</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore-osgi</artifactId>
+            <version>4.2.5</version>
+        </dependency>
+        <!--
         <dependency>
             <groupId>org.eclipse.aether</groupId>
-            <artifactId>aether-transport-wagon</artifactId>
-            <version>${aether.version}</version>
+            <artifactId>org.eclipse.aether.maven</artifactId>
+            <version>3.1.0.v20140706-2237</version>
+        </dependency>
+         -->
+        <dependency>
+            <groupId>org.eclipse.sisu</groupId>
+            <artifactId>org.eclipse.sisu.plexus</artifactId>
+            <version>0.1.1</version>
+            <optional>true</optional>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.maven.wagon</groupId>
-                    <artifactId>wagon-provider-api</artifactId>
+                    <groupId>javax.enterprise</groupId>
+                    <artifactId>cdi-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-settings</artifactId>
-            <version>${maven.version}</version>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <version>1.2</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-settings-builder</artifactId>
-            <version>${maven.version}</version>
+            <groupId>org.sonatype.sisu</groupId>
+            <artifactId>sisu-guice</artifactId>
+            <version>3.1.6</version>
+            <classifier>no_aop</classifier>
+            <optional>true</optional>
             <exclusions>
                 <exclusion>
-                    <groupId>org.codehaus.plexus</groupId>
-                    <artifactId>plexus-utils</artifactId>
+                    <groupId>aopalliance</groupId>
+                    <artifactId>aopalliance</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.sonatype.plexus</groupId>
-                    <artifactId>plexus-sec-dispatcher</artifactId>
+                    <groupId>com.google.code.findbugs</groupId>
+                    <artifactId>jsr305</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>guava</artifactId>
+                    <groupId>com.google.guava</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>javax.inject</artifactId>
+                    <groupId>javax.inject</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-model</artifactId>
-            <version>${maven.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.eclipse.aether</groupId>
-                    <artifactId>aether-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.eclipse.aether</groupId>
-                    <artifactId>aether-impl</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.eclipse.aether</groupId>
-                    <artifactId>aether-util</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.sonatype.sisu</groupId>
+            <artifactId>sisu-inject-bean</artifactId>
+            <version>2.3.1</version>
         </dependency>
-
         <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-aether-provider</artifactId>
-            <version>${maven.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.eclipse.aether</groupId>
-                    <artifactId>aether-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.eclipse.aether</groupId>
-                    <artifactId>aether-impl</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.eclipse.aether</groupId>
-                    <artifactId>aether-util</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.eclipse.aether</groupId>
-                    <artifactId>aether-spi</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.sonatype.sisu</groupId>
+            <artifactId>sisu-guava</artifactId>
+            <version>0.9.9</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>com.springsource.javax.inject</artifactId>
+            <version>1.0.0</version>
         </dependency>
 
         <!-- Guava -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>19.0</version>
+            <version>18.0</version>
         </dependency>
 
         <!-- SLF4J -->
@@ -184,13 +263,71 @@
                     <instructions>
                         <Import-Package>
                             com.synaltic.deployer.api,
-                            org.slf4j;resolution:=optional
+                            org.slf4j;resolution:=optional,
+                            org.junit;resolution:=optional,
+                            org.testng*;resolution:=optional,
+                            junit.framework.*;resolution:=optional,
+                            org.apache.maven.model.*;resolution:=optional,
+                            org.apache.maven.artifact.*;resolution:=optional,
+                            org.apache.maven.cli.*;resolution:=optional,
+                            org.apache.maven.settings.merge.*;resolution:=optional,
+                            org.apache.maven.wagon.events.*;resolution:=optional,
+                            org.apache.commons.cli.*;resolution:=optional,
+                            org.apache.tools.ant.*;resolution:=optional,
+                            org.codehaus.plexus.component.repository.exception.*,
+                            org.codehaus.plexus.component.annotations.*;resolution:=optional,
+                            org.codehaus.plexus.util.*;resolution:=optional,
+                            org.sonatype.plexus.components.cipher.*;resolution:=optional,
+                            org.sonatype.plexus.components.sec.dispatcher.*;resolution:=optional,
+                            hudson.maven.*;resolution:=optional,
+                            org.eclipse.aether.util.repository.layout.*;resolution:=optional,
+                            org.apache.maven.wagon.*;resolution:=optional,
+                            ch.qos.logback*;resolution:=optional,
+                            *
                         </Import-Package>
                         <Private-Package>
-                            com.synaltic.deployer.service.impl,
-                            org.eclipse.aether*,
-                            org.apache.maven.repository.internal
+                            com.synaltic.deployer.service.impl
                         </Private-Package>
+                        <Embed-Dependency>
+                            sisu-guice,
+                            sisu-guava,
+                            sisu-inject-bean,
+                            javax.interceptor-api,
+                            javax.el-api,
+                            cdi-api,
+                            aether-transport-http,
+                            aether-transport-file,
+                            aether-connector-basic,
+                            wagon-provider-api,
+                            aether-util,
+                            aether-spi,
+                            aether-impl,
+                            aether-api,
+                            aether-connector-wagon,
+                            maven-aether-provider,
+                            maven-model,
+                            maven-compat,
+                            ant,
+                            maven-settings-builder,
+                            maven-settings,
+                            org.eclipse.sisu.plexus,
+                            org.eclipse.sisu.inject,
+                            plexus-component-annotations,
+                            plexus-sec-dispatcher,
+                            plexus-cipher,
+                            commons-cli,
+                            maven-embedder,
+                            plexus-classworlds,
+                            maven-model-builder,
+                            maven-artifact,
+                            maven-repository-metadata,
+                            maven-core,
+                            maven-plugin-api,
+                            plexus-utils,
+                            plexus-interpolation
+                        </Embed-Dependency>
+                        <Embed-Directory>jars</Embed-Directory>
+                        <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>
             </plugin>
