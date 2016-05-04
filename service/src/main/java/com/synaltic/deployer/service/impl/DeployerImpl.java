@@ -221,7 +221,7 @@ public class DeployerImpl implements Deployer {
                   String feature,
                   List<String> featuresRepositoryUrls,
                   List<String> features) {
-        // TODO
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     public void deployKar(String artifactUrl, String jmxUrl, String karafName, String user, String password) throws Exception {

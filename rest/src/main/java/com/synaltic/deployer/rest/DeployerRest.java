@@ -11,6 +11,13 @@ public class DeployerRest {
 
     private Deployer deployer;
 
+    @Path("/kar/explode")
+    @Consumes("application/json")
+    @POST
+    public void explodeKar(KarExplodeRequest request) throws Exception {
+        deployer.explodeKar(request.getArtifactUrl(), request.getRepositoryUrl());
+    }
+
     @Path("/artifact/upload")
     @Consumes("application/json")
     @POST
@@ -22,7 +29,7 @@ public class DeployerRest {
                 request.getRepositoryUrl());
     }
 
-    @Path("/deploy/bundle")
+    @Path("/bundle/deploy")
     @Consumes("application/json")
     @POST
     public void deployBundle(DeployRequest request) throws Exception {
@@ -33,7 +40,18 @@ public class DeployerRest {
                 request.getPassword());
     }
 
-    @Path("/deploy/kar")
+    @Path("/bundle/undeploy")
+    @Consumes("application/json")
+    @POST
+    public void undeployBundle(DeployRequest request) throws Exception {
+        deployer.undeployBundle(request.getArtifactUrl(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/kar/deploy")
     @Consumes("application/json")
     @POST
     public void deployKar(DeployRequest request) throws Exception {
@@ -44,7 +62,18 @@ public class DeployerRest {
                 request.getPassword());
     }
 
-    @Path("/deploy/feature")
+    @Path("/kar/undeploy")
+    @Consumes("application/json")
+    @POST
+    public void undeployKar(DeployRequest request) throws Exception {
+        deployer.undeployKar(request.getArtifactUrl(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/feature/deploy")
     @Consumes("application/json")
     @POST
     public void deployFeaturesRepository(DeployRequest request) throws Exception {
@@ -55,11 +84,33 @@ public class DeployerRest {
                 request.getPassword());
     }
 
-    @Path("/install/feature")
+    @Path("/feature/undeploy")
+    @Consumes("application/json")
+    @POST
+    public void undeployFeaturesRepository(DeployRequest request) throws Exception {
+        deployer.undeployFeaturesRepository(request.getArtifactUrl(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/feature/install")
     @Consumes("application/json")
     @POST
     public void installFeature(DeployRequest request) throws Exception {
         deployer.installFeature(request.getArtifactUrl(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/feature/uninstall")
+    @Consumes("application/json")
+    @POST
+    public void uninstallFeature(DeployRequest request) throws Exception {
+        deployer.uninstallFeature(request.getArtifactUrl(),
                 request.getJmxUrl(),
                 request.getKarafName(),
                 request.getUser(),
