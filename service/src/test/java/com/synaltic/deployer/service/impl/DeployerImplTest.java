@@ -5,6 +5,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class DeployerImplTest {
@@ -26,6 +28,17 @@ public class DeployerImplTest {
     @Test
     public void uploadArtifactTest() throws Exception {
         deployer.uploadArtifact("test", "test", "1.0-SNAPSHOT", "mvn:commons-lang/commons-lang/2.6", "file:target/test/repository");
+    }
+
+    @Test
+    public void assembleFeatureTest() throws Exception {
+        List<String> featureRepositories = new ArrayList<String>();
+        featureRepositories.add("mvn:org.apache.camel.karaf/apache-camel/2.17.2/xml/features");
+        List<String> features = new ArrayList<String>();
+        features.add("camel-spring");
+        features.add("camel-jms");
+        features.add("camel-stream");
+        deployer.assembleFeature("test-feature", "test-feature", "1.0-SNAPSHOT", "file:target/test/repository", "test-feature", featureRepositories, features);
     }
 
     @Test

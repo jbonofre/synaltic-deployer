@@ -226,6 +226,13 @@
             <version>18.0</version>
         </dependency>
 
+        <!-- Karaf Features Model -->
+        <dependency>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>org.apache.karaf.features.core</artifactId>
+            <version>4.0.4</version>
+        </dependency>
+
         <!-- SLF4J -->
         <dependency>
             <groupId>org.slf4j</groupId>

@@ -73,6 +73,19 @@ public class DeployerRest {
                 request.getPassword());
     }
 
+    @Path("/feature/assemble")
+    @Consumes("application/json")
+    @POST
+    public void assembleFeature(FeatureAssembleRequest request) throws Exception {
+        deployer.assembleFeature(request.getGroupId(),
+                request.getArtifactId(),
+                request.getVersion(),
+                request.getFeature(),
+                request.getRepositoryUrl(),
+                request.getFeatureRepositories(),
+                request.getFeatures());
+    }
+
     @Path("/feature/deploy")
     @Consumes("application/json")
     @POST

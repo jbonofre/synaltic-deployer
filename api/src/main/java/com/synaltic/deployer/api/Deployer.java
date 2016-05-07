@@ -47,7 +47,7 @@ public interface Deployer {
                   String repositoryUrl,
                   String feature,
                   List<String> featuresRepositoryUrls,
-                  List<String> features);
+                  List<String> features) throws Exception;
 
     /**
      * Deploy a bundle to a given Karaf instance.

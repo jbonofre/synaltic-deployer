@@ -2,6 +2,10 @@ package com.synaltic.deployer.service.impl;
 
 import com.google.common.io.Files;
 import com.synaltic.deployer.api.Deployer;
+import org.apache.karaf.features.internal.model.Dependency;
+import org.apache.karaf.features.internal.model.Feature;
+import org.apache.karaf.features.internal.model.Features;
+import org.apache.karaf.features.internal.model.JaxbUtil;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
@@ -188,6 +192,10 @@ public class DeployerImpl implements Deployer {
     }
 
     protected void uploadArtifact(String groupId, String artifactId, String version, String extension, File artifactFile, String repositoryUrl) throws Exception {
+        uploadArtifact(groupId, artifactId, version, extension, null, artifactFile, repositoryUrl);
+    }
+
+    protected void uploadArtifact(String groupId, String artifactId, String version, String extension, String classifier, File artifactFile, String repositoryUrl) throws Exception {
         DefaultServiceLocator defaultServiceLocator = MavenRepositorySystemUtils.newServiceLocator();
         defaultServiceLocator.addService(RepositoryConnectorFactory.class, BasicRepositoryConnectorFactory.class);
         defaultServiceLocator.addService(TransporterFactory.class, FileTransporterFactory.class);
@@ -204,7 +212,12 @@ public class DeployerImpl implements Deployer {
 
         RemoteRepository remoteRepository = new RemoteRepository.Builder("sdeployer", "default", repositoryUrl).build();
 
-        Artifact artifact = new DefaultArtifact(groupId, artifactId, extension, version);
+        Artifact artifact;
+        if (classifier != null) {
+            artifact = new DefaultArtifact(groupId, artifactId, classifier, extension, version);
+        } else {
+            artifact = new DefaultArtifact(groupId, artifactId, extension, version);
+        }
         artifact = artifact.setFile(artifactFile);
 
         DeployRequest deployRequest = new DeployRequest();
@@ -220,8 +233,32 @@ public class DeployerImpl implements Deployer {
                   String repositoryUrl,
                   String feature,
                   List<String> featuresRepositoryUrls,
-                  List<String> features) {
-        throw new UnsupportedOperationException("Not yet implemented");
+                  List<String> features) throws Exception {
+        Features featuresModel = new Features();
+        featuresModel.setName(feature);
+        // add features repository
+        for (String featuresRepositoryUrl : featuresRepositoryUrls) {
+            featuresModel.getRepository().add("featuresRepositoryUrl");
+        }
+        // add wrap feature
+        Feature wrapFeature = new Feature();
+        wrapFeature.setName(feature);
+        wrapFeature.setVersion(version);
+        // add inner features
+        for (String innerFeature : features) {
+            Dependency dependency = new Dependency();
+            dependency.setName(innerFeature);
+            wrapFeature.getFeature().add(dependency);
+        }
+        featuresModel.getFeature().add(wrapFeature);
+
+        File featuresFile = File.createTempFile(artifactId, "xml");
+
+        FileOutputStream os = new FileOutputStream(featuresFile);
+
+        JaxbUtil.marshal(featuresModel, os);
+
+        uploadArtifact(groupId, artifactId, version, "xml", "features", featuresFile, repositoryUrl);
     }
 
     public void deployKar(String artifactUrl, String jmxUrl, String karafName, String user, String password) throws Exception {
