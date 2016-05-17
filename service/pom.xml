@@ -293,7 +293,10 @@
                             *
                         </Import-Package>
                         <Private-Package>
-                            com.synaltic.deployer.service.impl
+                            com.synaltic.deployer.service.impl,
+                            org.apache.karaf.features.internal.model,
+                            org.apache.felix.utils.version,
+                            org.apache.karaf.util
                         </Private-Package>
                         <Embed-Dependency>
                             sisu-guice,

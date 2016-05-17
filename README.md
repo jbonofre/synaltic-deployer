@@ -16,7 +16,6 @@ To install in Talend ESB runtime (avoiding refresh and extender issue):
 karaf@trun()> bundle:install -s mvn:com.synaltic.deployer/api/1.0-SNAPSHOT
 karaf@trun()> bundle:install -s mvn:org.apache.httpcomponents/httpcore-osgi/4.2.5
 karaf@trun()> bundle:install -s mvn:org.apache.httpcomponents/httpclient-osgi/4.2.5
-karaf@trun()> bundle:in
 karaf@trun()> bundle:install -s mvn:com.synaltic.deployer/service/1.0-SNAPSHOT
 karaf@trun()> bundle:install -s mvn:com.fasterxml.jackson.core/jackson-core/2.4.6
 karaf@trun()> bundle:install -s mvn:com.fasterxml.jackson.core/jackson-annotations/2.4.6
