@@ -2,9 +2,9 @@ package com.synaltic.deployer.rest;
 
 import com.synaltic.deployer.api.Deployer;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
+import java.util.List;
+import java.util.Map;
 
 @Path("/sdeployer")
 public class DeployerRest {
@@ -125,6 +125,76 @@ public class DeployerRest {
     public void uninstallFeature(DeployRequest request) throws Exception {
         deployer.uninstallFeature(request.getArtifactUrl(),
                 request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/cluster/feature/deploy")
+    @Consumes("application/json")
+    @POST
+    public void clusterDeployFeaturesRepository(ClusterDeployRequest request) throws Exception {
+        deployer.clusterFeatureRepositoryAdd(request.getArtifactUrl(),
+                request.getClusterGroup(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/cluster/feature/undeploy")
+    @Consumes("application/json")
+    @POST
+    public void clusterUndeployFeaturesRepository(ClusterDeployRequest request) throws Exception {
+        deployer.clusterFeatureRepositoryRemove(request.getArtifactUrl(),
+                request.getClusterGroup(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/cluster/feature/install")
+    @Consumes("application/json")
+    @POST
+    public void clusterInstallFeature(ClusterDeployRequest request) throws Exception {
+        deployer.clusterFeatureInstall(request.getArtifactUrl(),
+                request.getClusterGroup(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/cluster/feature/uninstall")
+    @Consumes("application/json")
+    @POST
+    public void clusterUninstallFeature(ClusterDeployRequest request) throws Exception {
+        deployer.clusterFeatureUninstall(request.getArtifactUrl(),
+                request.getClusterGroup(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/cluster/nodes")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @POST
+    public List<String> clusterNodes(DeployRequest request) throws Exception {
+        return deployer.clusterNodes(request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/cluster/groups")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @POST
+    public Map<String, List<String>> clusterGroups(DeployRequest request) throws Exception {
+        return deployer.clusterGroups(request.getJmxUrl(),
                 request.getKarafName(),
                 request.getUser(),
                 request.getPassword());
