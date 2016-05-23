@@ -294,7 +294,7 @@ public class DeployerImpl implements Deployer {
         try {
             MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
             ObjectName name = new ObjectName("org.apache.karaf:type=bundle,name=" + karafName);
-            connection.invoke(name, "install", new Object[]{ artifactUrl, Boolean.TRUE }, new String[]{ "java.lang.String", "java.lang.Boolean" });
+            connection.invoke(name, "install", new Object[]{ artifactUrl, true }, new String[]{ "java.lang.String", boolean.class.getName() });
         } finally {
             if (jmxConnector != null) {
                 jmxConnector.close();
@@ -320,7 +320,7 @@ public class DeployerImpl implements Deployer {
         try {
             MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
             ObjectName name = new ObjectName("org.apache.karaf:type=feature,name=" + karafName);
-            connection.invoke(name, "addRepository", new Object[]{ artifactUrl, Boolean.TRUE }, new String[]{ "java.lang.String", "java.lang.Boolean" });
+            connection.invoke(name, "addRepository", new Object[]{ artifactUrl, true }, new String[]{ "java.lang.String", boolean.class.getName() });
         } finally {
             if (jmxConnector != null) {
                 jmxConnector.close();
@@ -333,7 +333,7 @@ public class DeployerImpl implements Deployer {
         try {
             MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
             ObjectName name = new ObjectName("org.apache.karaf:type=feature,name=" + karafName);
-            connection.invoke(name, "removeRepository", new Object[]{ artifactUrl, Boolean.TRUE }, new String[]{ "java.lang.String", "java.lang.Boolean" });
+            connection.invoke(name, "removeRepository", new Object[]{ artifactUrl, true }, new String[]{ "java.lang.String", boolean.class.getName() });
         } finally {
             if (jmxConnector != null) {
                 jmxConnector.close();
