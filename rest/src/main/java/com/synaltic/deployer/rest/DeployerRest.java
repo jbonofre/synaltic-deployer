@@ -80,8 +80,8 @@ public class DeployerRest {
         deployer.assembleFeature(request.getGroupId(),
                 request.getArtifactId(),
                 request.getVersion(),
-                request.getFeature(),
                 request.getRepositoryUrl(),
+                request.getFeature(),
                 request.getFeatureRepositories(),
                 request.getFeatures());
     }
