@@ -240,7 +240,7 @@ public class DeployerImpl implements Deployer {
         featuresModel.setName(feature);
         // add features repository
         for (String featuresRepositoryUrl : featuresRepositoryUrls) {
-            featuresModel.getRepository().add("featuresRepositoryUrl");
+            featuresModel.getRepository().add(featuresRepositoryUrl);
         }
         // add wrap feature
         Feature wrapFeature = new Feature();
@@ -320,7 +320,7 @@ public class DeployerImpl implements Deployer {
         try {
             MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
             ObjectName name = new ObjectName("org.apache.karaf:type=feature,name=" + karafName);
-            connection.invoke(name, "addRepository", new Object[]{ artifactUrl, true }, new String[]{ "java.lang.String", boolean.class.getName() });
+            connection.invoke(name, "addRepository", new Object[]{ artifactUrl, false }, new String[]{ "java.lang.String", boolean.class.getName() });
         } finally {
             if (jmxConnector != null) {
                 jmxConnector.close();
