@@ -6,6 +6,7 @@ import org.apache.karaf.features.internal.model.Dependency;
 import org.apache.karaf.features.internal.model.Feature;
 import org.apache.karaf.features.internal.model.Features;
 import org.apache.karaf.features.internal.model.JaxbUtil;
+import org.apache.maven.model.Repository;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
@@ -14,6 +15,7 @@ import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory;
 import org.eclipse.aether.deployment.DeployRequest;
 import org.eclipse.aether.impl.DefaultServiceLocator;
+import org.eclipse.aether.installation.InstallRequest;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.LocalRepositoryManager;
 import org.eclipse.aether.repository.RemoteRepository;
@@ -222,10 +224,13 @@ public class DeployerImpl implements Deployer {
         }
         artifact = artifact.setFile(artifactFile);
 
+        InstallRequest installRequest = new InstallRequest();
+        installRequest.addArtifact(artifact);
+        repositorySystem.install(repositorySystemSession, installRequest);
+
         DeployRequest deployRequest = new DeployRequest();
         deployRequest.addArtifact(artifact);
         deployRequest.setRepository(remoteRepository);
-
         repositorySystem.deploy(repositorySystemSession, deployRequest);
     }
 
