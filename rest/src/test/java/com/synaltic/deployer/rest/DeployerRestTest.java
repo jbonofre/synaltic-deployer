@@ -22,6 +22,29 @@ public class DeployerRestTest {
     }
 
     @Test
+    @Ignore
+    public void deployKarTest() throws Exception {
+        System.out.println("Deploy a kar in a Karaf instance.");
+        System.out.println("WARNING: this test requires a running Karaf instance");
+
+        UploadRequest uploadRequest = new UploadRequest();
+        uploadRequest.setRepositoryUrl("file:target/test/repository");
+        uploadRequest.setArtifactUrl("file:src/test/resources/test.kar");
+        uploadRequest.setGroupId("kar-test");
+        uploadRequest.setArtifactId("kar-test");
+        uploadRequest.setVersion("1.0-SNAPSHOT");
+        rest.uploadArtifact(uploadRequest);
+
+        DeployRequest request = new DeployRequest();
+        request.setArtifactUrl("mvn:kar-test/kar-test/1.0-SNAPSHOT/kar");
+        request.setJmxUrl("service:jmx:rmi:///jndi/rmi://localhost:1099/karaf-root");
+        request.setKarafName("root");
+        request.setUser("karaf");
+        request.setPassword("karaf");
+        rest.deployKar(request);
+    }
+
+    @Test
     public void explodeKarTest() throws Exception {
         System.out.println("This test is step 1 in the use case:");
         System.out.println("\t- User creates a kar locally");
