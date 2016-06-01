@@ -41,6 +41,7 @@ public interface Deployer {
      * @param feature The name of the target feature.
      * @param featuresRepositoryUrls The list of existing features repository URLs to use.
      * @param features The list of existing features to include in the assembly feature.
+     * @param bundles The list of bundles URLs to include in the assembly feature.
      */
     void assembleFeature(String groupId,
                   String artifactId,
@@ -48,7 +49,8 @@ public interface Deployer {
                   String repositoryUrl,
                   String feature,
                   List<String> featuresRepositoryUrls,
-                  List<String> features) throws Exception;
+                  List<String> features,
+                  List<String> bundles) throws Exception;
 
     /**
      * Deploy a bundle to a given Karaf instance.

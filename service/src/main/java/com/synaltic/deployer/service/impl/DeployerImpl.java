@@ -2,10 +2,7 @@ package com.synaltic.deployer.service.impl;
 
 import com.google.common.io.Files;
 import com.synaltic.deployer.api.Deployer;
-import org.apache.karaf.features.internal.model.Dependency;
-import org.apache.karaf.features.internal.model.Feature;
-import org.apache.karaf.features.internal.model.Features;
-import org.apache.karaf.features.internal.model.JaxbUtil;
+import org.apache.karaf.features.internal.model.*;
 import org.apache.maven.model.Repository;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
@@ -240,22 +237,35 @@ public class DeployerImpl implements Deployer {
                   String repositoryUrl,
                   String feature,
                   List<String> featuresRepositoryUrls,
-                  List<String> features) throws Exception {
+                  List<String> features,
+                  List<String> bundles) throws Exception {
         Features featuresModel = new Features();
         featuresModel.setName(feature);
         // add features repository
-        for (String featuresRepositoryUrl : featuresRepositoryUrls) {
-            featuresModel.getRepository().add(featuresRepositoryUrl);
+        if (featuresRepositoryUrls != null) {
+            for (String featuresRepositoryUrl : featuresRepositoryUrls) {
+                featuresModel.getRepository().add(featuresRepositoryUrl);
+            }
         }
         // add wrap feature
         Feature wrapFeature = new Feature();
         wrapFeature.setName(feature);
         wrapFeature.setVersion(version);
         // add inner features
-        for (String innerFeature : features) {
-            Dependency dependency = new Dependency();
-            dependency.setName(innerFeature);
-            wrapFeature.getFeature().add(dependency);
+        if (features != null) {
+            for (String innerFeature : features) {
+                Dependency dependency = new Dependency();
+                dependency.setName(innerFeature);
+                wrapFeature.getFeature().add(dependency);
+            }
+        }
+        // add bundles
+        if (bundles != null) {
+            for (String innerBundle : bundles) {
+                Bundle bundle = new Bundle();
+                bundle.setLocation(innerBundle);
+                wrapFeature.getBundle().add(bundle);
+            }
         }
         featuresModel.getFeature().add(wrapFeature);
 

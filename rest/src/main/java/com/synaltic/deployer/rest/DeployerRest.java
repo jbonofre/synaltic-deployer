@@ -83,7 +83,8 @@ public class DeployerRest {
                 request.getRepositoryUrl(),
                 request.getFeature(),
                 request.getFeatureRepositories(),
-                request.getFeatures());
+                request.getFeatures(),
+                request.getBundles());
     }
 
     @Path("/feature/deploy")

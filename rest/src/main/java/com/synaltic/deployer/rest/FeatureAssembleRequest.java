@@ -11,6 +11,7 @@ public class FeatureAssembleRequest {
     private String repositoryUrl;
     private List<String> featureRepositories;
     private List<String> features;
+    private List<String> bundles;
 
     public String getGroupId() {
         return groupId;
@@ -66,6 +67,14 @@ public class FeatureAssembleRequest {
 
     public void setFeatures(List<String> features) {
         this.features = features;
+    }
+
+    public List<String> getBundles() {
+        return bundles;
+    }
+
+    public void setBundles(List<String> bundles) {
+        this.bundles = bundles;
     }
 
 }

@@ -38,7 +38,14 @@ public class DeployerImplTest {
         features.add("camel-spring");
         features.add("camel-jms");
         features.add("camel-stream");
-        deployer.assembleFeature("test-feature", "test-feature", "1.0-SNAPSHOT", "file:target/test/repository", "test-feature", featureRepositories, features);
+        List<String> bundles = new ArrayList<String>();
+        bundles.add("mvn:commons-lang/commons-lang/2.6");
+        deployer.assembleFeature("test-feature", "test-feature", "1.0-SNAPSHOT", "file:target/test/repository", "test-feature", featureRepositories, features, bundles);
+    }
+
+    @Test
+    public void assembleFeatureWithNullTest() throws Exception {
+       deployer.assembleFeature("null-feature", "null-feature", "1.0-SNAPSHOT", "file:target/test/repository", "null-feature", null, null, null);
     }
 
     @Test
