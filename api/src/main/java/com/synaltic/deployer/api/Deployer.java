@@ -42,6 +42,7 @@ public interface Deployer {
      * @param featuresRepositoryUrls The list of existing features repository URLs to use.
      * @param features The list of existing features to include in the assembly feature.
      * @param bundles The list of bundles URLs to include in the assembly feature.
+     * @param configs The list of configurations to include in the assembly feature.
      */
     void assembleFeature(String groupId,
                   String artifactId,
@@ -50,7 +51,8 @@ public interface Deployer {
                   String feature,
                   List<String> featuresRepositoryUrls,
                   List<String> features,
-                  List<String> bundles) throws Exception;
+                  List<String> bundles,
+                  List<Config> configs) throws Exception;
 
     /**
      * Deploy a bundle to a given Karaf instance.
@@ -179,6 +181,107 @@ public interface Deployer {
                           String karafName,
                           String user,
                           String password) throws Exception;
+
+    /**
+     * Create an empty configuration on the given Karaf instance.
+     *
+     * @param pid The configuration PID to create.
+     * @param jmxUrl The Karaf MBean server JMX URL.
+     * @param karafName The Karaf instance name.
+     * @param user The Karaf MBean server username.
+     * @param password The Karaf MBean server password.
+     * @throws Exception In case of create failure.
+     */
+    void createConfig(String pid,
+                      String jmxUrl,
+                      String karafName,
+                      String user,
+                      String password) throws Exception;
+
+    /**
+     * Get the properties contained in a configuration on the given Karaf instance.
+     *
+     * @param pid The configuration PID.
+     * @param jmxUrl The Karaf MBean server JMX URL.
+     * @param karafName The Karaf instance name.
+     * @param user The Karaf MBean server username.
+     * @param password The Karaf MBean server password.
+     * @return the key,value pairs in the configuration.
+     * @throws Exception In case of retrieval failure.
+     */
+    Map<String, String> configProperties(String pid,
+                                         String jmxUrl,
+                                         String karafName,
+                                         String user,
+                                         String password) throws Exception;
+
+    /**
+     * Create or update a configuration in a given Karaf instance.
+     *
+     * @param config The configuration to update.
+     * @param jmxUrl The Karaf MBean server JMX URL.
+     * @param karafName The Karaf instance name.
+     * @param user The Karaf MBean server username.
+     * @param password The Karaf MBean server password.
+     * @throws Exception In case of configuration update failure.
+     */
+    void updateConfig(Config config,
+                      String jmxUrl,
+                      String karafName,
+                      String user,
+                      String password) throws Exception;
+
+    /**
+     * Delete a configuration from a given Karaf instance.
+     *
+     * @param pid The configuration PID.
+     * @param jmxUrl The Karaf MBean server JMX URL.
+     * @param karafName The Karaf instance name.
+     * @param user The Karaf MBean server username.
+     * @param password The Karaf MBean server password.
+     * @throws Exception In case of configuration delete failure.
+     */
+    void deleteConfig(String pid,
+                      String jmxUrl,
+                      String karafName,
+                      String user,
+                      String password) throws Exception;
+
+    /**
+     * Append a value at the end of the given property value on the given Karaf instance.
+     *
+     * @param pid The configuration PID.
+     * @param key The configuration property key.
+     * @param value The configuration property value.
+     * @param jmxUrl The Karaf MBean server JMX URL.
+     * @param karafName The Karaf instance name.
+     * @param user The Karaf MBean server username.
+     * @param password The Karaf MBean server password.
+     * @throws Exception In case of append failure.
+     */
+    void appendConfigProperty(String pid, String key, String value,
+                              String jmxUrl,
+                              String karafName,
+                              String user,
+                              String password) throws Exception;
+
+    /**
+     * Overwrite a value of the given property on the given Karaf instance.
+     *
+     * @param pid The configuration PID.
+     * @param key The configuration property key.
+     * @param value The configuration property value.
+     * @param jmxUrl The Karaf MBean server JMX URL.
+     * @param karafName The Karaf instance name.
+     * @param user The Karaf MBean server username.
+     * @param password The Karaf MBean server password.
+     * @throws Exception In case of set failure.
+     */
+    void setConfigProperty(String pid, String key, String value,
+                           String jmxUrl,
+                           String karafName,
+                           String user,
+                           String password) throws Exception;
 
     /**
      * List the nodes in the cluster.

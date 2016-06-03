@@ -1,5 +1,6 @@
 package com.synaltic.deployer.service.impl;
 
+import com.synaltic.deployer.api.Config;
 import com.synaltic.deployer.api.Deployer;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,12 +41,25 @@ public class DeployerImplTest {
         features.add("camel-stream");
         List<String> bundles = new ArrayList<String>();
         bundles.add("mvn:commons-lang/commons-lang/2.6");
-        deployer.assembleFeature("test-feature", "test-feature", "1.0-SNAPSHOT", "file:target/test/repository", "test-feature", featureRepositories, features, bundles);
+        deployer.assembleFeature("test-feature", "test-feature", "1.0-SNAPSHOT", "file:target/test/repository", "test-feature", featureRepositories, features, bundles, null);
+    }
+
+    @Test
+    public void assembleFeatureWithConfigTest() throws Exception {
+        List<String> features = new ArrayList<String>();
+        features.add("eventadmin");
+        List<Config> configs = new ArrayList<Config>();
+        Config config = new Config();
+        config.setPid("org.mytest");
+        config.getProperties().put("foo", "bar");
+        config.getProperties().put("other", "value");
+        configs.add(config);
+        deployer.assembleFeature("config-feature", "config-feature", "1.0-SNAPSHOT", "file:target/test/repository", "config-feature", null, features, null, configs);
     }
 
     @Test
     public void assembleFeatureWithNullTest() throws Exception {
-       deployer.assembleFeature("null-feature", "null-feature", "1.0-SNAPSHOT", "file:target/test/repository", "null-feature", null, null, null);
+       deployer.assembleFeature("null-feature", "null-feature", "1.0-SNAPSHOT", "file:target/test/repository", "null-feature", null, null, null, null);
     }
 
     @Test

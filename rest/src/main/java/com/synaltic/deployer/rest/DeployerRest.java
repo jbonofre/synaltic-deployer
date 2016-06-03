@@ -84,7 +84,8 @@ public class DeployerRest {
                 request.getFeature(),
                 request.getFeatureRepositories(),
                 request.getFeatures(),
-                request.getBundles());
+                request.getBundles(),
+                request.getConfigs());
     }
 
     @Path("/feature/deploy")
@@ -125,6 +126,77 @@ public class DeployerRest {
     @POST
     public void uninstallFeature(DeployRequest request) throws Exception {
         deployer.uninstallFeature(request.getArtifactUrl(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/config/create")
+    @Consumes("application/json")
+    @POST
+    public void createConfig(ConfigRequest request) throws Exception {
+        deployer.createConfig(request.getPid(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/config/delete")
+    @Consumes("application/json")
+    @DELETE
+    public void deleteConfig(ConfigRequest request) throws Exception {
+        deployer.deleteConfig(request.getPid(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/config/properties")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @GET
+    public Map<String, String> configProperties(ConfigRequest request) throws Exception {
+        return deployer.configProperties(request.getPid(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/config/update")
+    @Consumes("application/json")
+    @POST
+    public void updateConfig(ConfigUpdateRequest request) throws Exception {
+        deployer.updateConfig(request.getConfig(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/config/property/set")
+    @Consumes("application/json")
+    @POST
+    public void setConfigProperty(ConfigPropertyRequest request) throws Exception {
+        deployer.setConfigProperty(request.getPid(),
+                request.getKey(),
+                request.getValue(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/config/property/append")
+    @Consumes("application/json")
+    @POST
+    public void appendConfigProperty(ConfigPropertyRequest request) throws Exception {
+        deployer.appendConfigProperty(request.getPid(),
+                request.getKey(),
+                request.getValue(),
                 request.getJmxUrl(),
                 request.getKarafName(),
                 request.getUser(),

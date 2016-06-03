@@ -1,5 +1,7 @@
 package com.synaltic.deployer.rest;
 
+import com.synaltic.deployer.api.Config;
+
 import java.util.List;
 
 public class FeatureAssembleRequest {
@@ -12,6 +14,7 @@ public class FeatureAssembleRequest {
     private List<String> featureRepositories;
     private List<String> features;
     private List<String> bundles;
+    private List<Config> configs;
 
     public String getGroupId() {
         return groupId;
@@ -75,6 +78,14 @@ public class FeatureAssembleRequest {
 
     public void setBundles(List<String> bundles) {
         this.bundles = bundles;
+    }
+
+    public List<Config> getConfigs() {
+        return configs;
+    }
+
+    public void setConfigs(List<Config> configs) {
+        this.configs = configs;
     }
 
 }

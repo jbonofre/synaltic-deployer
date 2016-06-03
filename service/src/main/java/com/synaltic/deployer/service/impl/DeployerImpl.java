@@ -3,7 +3,6 @@ package com.synaltic.deployer.service.impl;
 import com.google.common.io.Files;
 import com.synaltic.deployer.api.Deployer;
 import org.apache.karaf.features.internal.model.*;
-import org.apache.maven.model.Repository;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
@@ -238,7 +237,8 @@ public class DeployerImpl implements Deployer {
                   String feature,
                   List<String> featuresRepositoryUrls,
                   List<String> features,
-                  List<String> bundles) throws Exception {
+                  List<String> bundles,
+                  List<com.synaltic.deployer.api.Config> configs) throws Exception {
         Features featuresModel = new Features();
         featuresModel.setName(feature);
         // add features repository
@@ -267,6 +267,22 @@ public class DeployerImpl implements Deployer {
                 wrapFeature.getBundle().add(bundle);
             }
         }
+        // add config
+        if (configs != null) {
+            for (com.synaltic.deployer.api.Config config : configs) {
+                Config modelConfig = new Config();
+                modelConfig.setName(config.getPid());
+                StringBuilder builder = new StringBuilder();
+                if (config.getProperties() != null) {
+                    for (String key : config.getProperties().keySet()) {
+                        builder.append(key).append("=").append(config.getProperties().get(key)).append('\n');
+                    }
+                }
+                modelConfig.setValue(builder.toString());
+                wrapFeature.getConfig().add(modelConfig);
+            }
+        }
+
         featuresModel.getFeature().add(wrapFeature);
 
         File featuresFile = File.createTempFile(artifactId, "xml");
@@ -375,6 +391,85 @@ public class DeployerImpl implements Deployer {
             MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
             ObjectName name = new ObjectName("org.apache.karaf:type=feature,name=" + karafName);
             connection.invoke(name, "uninstallFeature", new Object[]{ feature }, new String[]{ "java.lang.String", });
+        } finally {
+            if (jmxConnector != null) {
+                jmxConnector.close();
+            }
+        }
+    }
+
+    public void createConfig(String pid, String jmxUrl, String karafName, String user, String password) throws Exception {
+        JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
+        try {
+            MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
+            ObjectName name = new ObjectName("org.apache.karaf:type=config,name=" + karafName);
+            connection.invoke(name, "create", new Object[]{ pid }, new String[]{ String.class.getName() });
+        } finally {
+            if (jmxConnector != null) {
+                jmxConnector.close();
+            }
+        }
+    }
+
+    public void deleteConfig(String pid, String jmxUrl, String karafName, String user, String password) throws Exception {
+        JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
+        try {
+            MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
+            ObjectName name = new ObjectName("org.apache.karaf:type=config,name=" + karafName);
+            connection.invoke(name, "delete", new Object[]{ pid }, new String[]{ String.class.getName() });
+        } finally {
+            if (jmxConnector != null) {
+                jmxConnector.close();
+            }
+        }
+    }
+
+    public void setConfigProperty(String pid, String key, String value, String jmxUrl, String karafName, String user, String password) throws Exception {
+        JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
+        try {
+            MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
+            ObjectName name = new ObjectName("org.apache.karaf:type=config,name=" + karafName);
+            connection.invoke(name, "setProperty", new Object[]{ pid, key, value }, new String[]{ String.class.getName(), String.class.getName(), String.class.getName() });
+        } finally {
+            if (jmxConnector != null) {
+                jmxConnector.close();
+            }
+        }
+    }
+
+    public void appendConfigProperty(String pid, String key, String value, String jmxUrl, String karafName, String user, String password) throws Exception {
+        JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
+        try {
+            MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
+            ObjectName name = new ObjectName("org.apache.karaf:type=config,name=" + karafName);
+            connection.invoke(name, "appendProperty", new Object[]{ pid, key, value }, new String[]{ String.class.getName(), String.class.getName(), String.class.getName() });
+        } finally {
+            if (jmxConnector != null) {
+                jmxConnector.close();
+            }
+        }
+    }
+
+    public void updateConfig(com.synaltic.deployer.api.Config config, String jmxUrl, String karafName, String user, String password) throws Exception {
+        JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
+        try {
+            MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
+            ObjectName name = new ObjectName("org.apache.karaf:type=config,name=" + karafName);
+            connection.invoke(name, "update", new Object[] { config.getPid(), config.getProperties() }, new String[]{ String.class.getName(), Map.class.getName() });
+        } finally {
+            if (jmxConnector != null) {
+                jmxConnector.close();
+            }
+        }
+    }
+
+    public Map<String, String> configProperties(String pid, String jmxUrl, String karafName, String user, String password) throws Exception {
+        JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
+        try {
+            MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
+            ObjectName name = new ObjectName("org.apache.karaf:type=config,name=" + karafName);
+            Map<String, String> result = (Map<String, String>) connection.invoke(name, "listProperties", new Object[]{ pid }, new String[]{ String.class.getName() });
+            return result;
         } finally {
             if (jmxConnector != null) {
                 jmxConnector.close();
