@@ -284,6 +284,41 @@ public interface Deployer {
                            String password) throws Exception;
 
     /**
+     * Get the value of a config property on the given Karaf instance.
+     *
+     * @param pid The configuration PID.
+     * @param key The configuration property key.
+     * @param jmxUrl The Karaf MBean server JMX URL.
+     * @param karafName The Karaf instance name.
+     * @param user The Karaf MBean server username.
+     * @param password The Karaf MBean server password.
+     * @return The value of config property.
+     * @throws Exception In case of get failure.
+     */
+    String getConfigProperty(String pid, String key,
+                             String jmxUrl,
+                             String karafName,
+                             String user,
+                             String password) throws Exception;
+
+    /**
+     * Delete a config property in the given Karaf instance.
+     *
+     * @param pid The configuration PID.
+     * @param key The configuration property key.
+     * @param jmxUrl The Karaf MBean server JMX URL.
+     * @param karafName The Karaf instance name.
+     * @param user The Karaf MBean server username.
+     * @param password The Karaf MBean server password.
+     * @throws Exception In case of delete failure.
+     */
+    void deleteConfigProperty(String pid, String key,
+                              String jmxUrl,
+                              String karafName,
+                              String user,
+                              String password) throws Exception;
+
+    /**
      * List the nodes in the cluster.
      *
      * @param jmxUrl The Karaf MBean server JMX URL where to perform the Cellar action.

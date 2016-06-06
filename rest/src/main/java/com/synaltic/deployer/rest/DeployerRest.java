@@ -190,6 +190,30 @@ public class DeployerRest {
                 request.getPassword());
     }
 
+    @Path("/config/property/get")
+    @Consumes("application/json")
+    @GET
+    public String getConfigProperty(ConfigPropertyKeyRequest request) throws Exception {
+        return deployer.getConfigProperty(request.getPid(),
+                request.getKey(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/config/property/delete")
+    @Consumes("application/json")
+    @DELETE
+    public void deleteConfigProperty(ConfigPropertyKeyRequest request) throws Exception {
+        deployer.deleteConfigProperty(request.getPid(),
+                request.getKey(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
     @Path("/config/property/append")
     @Consumes("application/json")
     @POST

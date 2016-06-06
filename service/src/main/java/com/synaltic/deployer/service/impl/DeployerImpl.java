@@ -437,6 +437,24 @@ public class DeployerImpl implements Deployer {
         }
     }
 
+    public String getConfigProperty(String pid, String key, String jmxUrl, String karafName, String user, String password) throws Exception {
+        Map<String, String> properties = this.configProperties(pid, jmxUrl, karafName, user, password);
+        return properties.get(key);
+    }
+
+    public void deleteConfigProperty(String pid, String key, String jmxUrl, String karafName, String user, String password) throws Exception {
+        JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
+        try {
+            MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
+            ObjectName name = new ObjectName("org.apache.karaf:type=config,name=" + karafName);
+            connection.invoke(name, "deleteProperty", new Object[]{ pid, key }, new String[]{ String.class.getName(), String.class.getName()} );
+        } finally {
+            if (jmxConnector != null) {
+                jmxConnector.close();
+            }
+        }
+    }
+
     public void appendConfigProperty(String pid, String key, String value, String jmxUrl, String karafName, String user, String password) throws Exception {
         JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
         try {
