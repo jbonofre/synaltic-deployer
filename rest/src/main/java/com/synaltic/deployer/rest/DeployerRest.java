@@ -145,7 +145,7 @@ public class DeployerRest {
 
     @Path("/config/delete")
     @Consumes("application/json")
-    @DELETE
+    @POST
     public void deleteConfig(ConfigRequest request) throws Exception {
         deployer.deleteConfig(request.getPid(),
                 request.getJmxUrl(),
@@ -157,7 +157,7 @@ public class DeployerRest {
     @Path("/config/properties")
     @Consumes("application/json")
     @Produces("application/json")
-    @GET
+    @POST
     public Map<String, String> configProperties(ConfigRequest request) throws Exception {
         return deployer.configProperties(request.getPid(),
                 request.getJmxUrl(),
@@ -192,7 +192,7 @@ public class DeployerRest {
 
     @Path("/config/property/get")
     @Consumes("application/json")
-    @GET
+    @POST
     public String getConfigProperty(ConfigPropertyKeyRequest request) throws Exception {
         return deployer.getConfigProperty(request.getPid(),
                 request.getKey(),
@@ -204,7 +204,7 @@ public class DeployerRest {
 
     @Path("/config/property/delete")
     @Consumes("application/json")
-    @DELETE
+    @POST
     public void deleteConfigProperty(ConfigPropertyKeyRequest request) throws Exception {
         deployer.deleteConfigProperty(request.getPid(),
                 request.getKey(),
