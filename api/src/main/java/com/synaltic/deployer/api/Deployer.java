@@ -87,6 +87,30 @@ public interface Deployer {
                         String password) throws Exception;
 
     /**
+     * Start a bundle in the given Karaf instance.
+     *
+     * @param id The bundle ID.
+     * @param jmxUrl The Karaf MBean server JMX URL.
+     * @param karafName The Karaf instance name.
+     * @param user The Karaf MBean server username.
+     * @param password The Karaf MBean server password.
+     * @throws Exception In case of start failure.
+     */
+    void startBundle(String id, String jmxUrl, String karafName, String user, String password) throws Exception;
+
+    /**
+     * Stop a bundle in the given Karaf instance.
+     *
+     * @param id The bundle ID.
+     * @param jmxUrl The Karaf MBean server JMX URL.
+     * @param karafName The Karaf instance name.
+     * @param user The Karaf MBean server username.
+     * @param password The Karaf MBean server password.
+     * @throws Exception In case of start failure.
+     */
+    void stopBundle(String id, String jmxUrl, String karafName, String user, String password) throws Exception;
+
+    /**
      * List the bundles.
      *
      * @param jmxUrl The Karaf MBean server JMX URL.
@@ -96,7 +120,7 @@ public interface Deployer {
      * @return The list of installed bundles URLs.
      * @throws Exception
      */
-    List<String> listBundles(String jmxUrl,
+    List<Bundle> listBundles(String jmxUrl,
                              String karafName,
                              String user,
                              String password) throws Exception;
@@ -190,7 +214,7 @@ public interface Deployer {
      * @return The list of features repositories.
      * @throws Exception In case of failure.
      */
-    List<String> listFeaturesRepositories(String jmxUrl,
+    List<FeatureRepository> listFeaturesRepositories(String jmxUrl,
                                           String karafName,
                                           String user,
                                           String password) throws Exception;
@@ -205,22 +229,7 @@ public interface Deployer {
      * @return The list of features (installed or global).
      * @throws Exception
      */
-    List<String> listFeatures(String jmxUrl,
-                              String karafName,
-                              String user,
-                              String password) throws Exception;
-
-    /**
-     * List all installed features.
-     *
-     * @param jmxUrl The Karaf MBean server JMX URL.
-     * @param karafName The Karaf instance name.
-     * @param user The Karaf MBean server username.
-     * @param password The Karaf MBean server password.
-     * @return The list of features (installed or global).
-     * @throws Exception
-     */
-    List<String> listInstalledFeatures(String jmxUrl,
+    List<Feature> listFeatures(String jmxUrl,
                               String karafName,
                               String user,
                               String password) throws Exception;

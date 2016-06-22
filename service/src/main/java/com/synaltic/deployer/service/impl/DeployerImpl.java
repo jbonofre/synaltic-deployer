@@ -1,8 +1,11 @@
 package com.synaltic.deployer.service.impl;
 
 import com.google.common.io.Files;
-import com.synaltic.deployer.api.Deployer;
+import com.synaltic.deployer.api.*;
 import org.apache.karaf.features.internal.model.*;
+import org.apache.karaf.features.internal.model.Bundle;
+import org.apache.karaf.features.internal.model.Config;
+import org.apache.karaf.features.internal.model.Feature;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
@@ -25,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.CompositeType;
 import javax.management.openmbean.TabularData;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
@@ -360,17 +362,51 @@ public class DeployerImpl implements Deployer {
         }
     }
 
-    public List<String> listBundles(String jmxUrl, String karafName, String user, String password) throws Exception {
+    public void startBundle(String id, String jmxUrl, String karafName, String user, String password) throws Exception {
+        JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
+        try {
+            MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
+            ObjectName name = new ObjectName("org.apache.karaf:type=bundle,name=" + karafName);
+            connection.invoke(name, "start", new Object[]{id}, new String[]{ "java.lang.String" });
+        } finally {
+            if (jmxConnector != null) {
+                jmxConnector.close();
+            }
+        }
+    }
+
+    public void stopBundle(String id, String jmxUrl, String karafName, String user, String password) throws Exception {
+        JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
+        try {
+            MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
+            ObjectName name = new ObjectName("org.apache.karaf:type=bundle,name=" + karafName);
+            connection.invoke(name, "stop", new Object[]{id}, new String[]{ "java.lang.String" });
+        } finally {
+            if (jmxConnector != null) {
+                jmxConnector.close();
+            }
+        }
+    }
+
+    public List<com.synaltic.deployer.api.Bundle> listBundles(String jmxUrl, String karafName, String user, String password) throws Exception {
         JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
         try {
             MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
             ObjectName name = new ObjectName("org.apache.karaf:type=bundle,name=" + karafName);
             TabularData tabularData = (TabularData) connection.getAttribute(name, "Bundles");
-            List<String> result = new ArrayList<String>();
+            List<com.synaltic.deployer.api.Bundle> result = new ArrayList<com.synaltic.deployer.api.Bundle>();
             for (Object value : tabularData.values()) {
                 CompositeData compositeData = (CompositeData) value;
+                Long bundleId = (Long) compositeData.get("ID");
                 String bundleName = (String) compositeData.get("Name");
-                result.add(bundleName);
+                String bundleVersion = (String) compositeData.get("Version");
+                String bundleState = (String) compositeData.get("State");
+                com.synaltic.deployer.api.Bundle bundle = new com.synaltic.deployer.api.Bundle();
+                bundle.setId(bundleId.toString());
+                bundle.setName(bundleName);
+                bundle.setVersion(bundleVersion);
+                bundle.setState(bundleState);
+                result.add(bundle);
             }
             return result;
         } finally {
@@ -406,17 +442,21 @@ public class DeployerImpl implements Deployer {
         }
     }
 
-    public List<String> listFeaturesRepositories(String jmxUrl, String karafName, String user, String password) throws Exception {
+    public List<FeatureRepository> listFeaturesRepositories(String jmxUrl, String karafName, String user, String password) throws Exception {
         JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
         try {
             MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
             ObjectName name = new ObjectName("org.apache.karaf:type=feature,name=" + karafName);
-            List<String> result = new ArrayList<String>();
+            List<FeatureRepository> result = new ArrayList<FeatureRepository>();
             TabularData tabularData = (TabularData) connection.getAttribute(name, "Repositories");
             for (Object value : tabularData.values()) {
                 CompositeData compositeData = (CompositeData) value;
-                String uri = (String) compositeData.get("Uri");
-                result.add(uri);
+                String repoName = (String) compositeData.get("Name");
+                String repoUri = (String) compositeData.get("Uri");
+                FeatureRepository repo = new FeatureRepository();
+                repo.setName(repoName);
+                repo.setUri(repoUri);
+                result.add(repo);
             }
             return result;
         } finally {
@@ -452,19 +492,25 @@ public class DeployerImpl implements Deployer {
         }
     }
 
-    public List<String> listFeatures(String jmxUrl, String karafName, String user, String password) throws Exception {
+    public List<com.synaltic.deployer.api.Feature> listFeatures(String jmxUrl, String karafName, String user, String password) throws Exception {
         JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
         try {
             MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
             ObjectName name = new ObjectName("org.apache.karaf:type=feature,name=" + karafName);
             TabularData tabularData = (TabularData) connection.getAttribute(name, "Features");
-            List<String> result = new ArrayList<String>();
+            List<com.synaltic.deployer.api.Feature> result = new ArrayList<com.synaltic.deployer.api.Feature>();
             for (Object value : tabularData.values()) {
                 CompositeData compositeData = (CompositeData) value;
                 String featureName = (String) compositeData.get("Name");
                 String featureVersion = (String) compositeData.get("Version");
                 boolean featureInstalled = (Boolean) compositeData.get("Installed");
-                result.add(featureName + "/" + featureVersion);
+                com.synaltic.deployer.api.Feature feature = new com.synaltic.deployer.api.Feature();
+                feature.setName(featureName);
+                feature.setVersion(featureVersion);
+                if (featureInstalled)
+                    feature.setState("Installed");
+                else feature.setState("Uninstalled");
+                result.add(feature);
             }
             return result;
         } finally {

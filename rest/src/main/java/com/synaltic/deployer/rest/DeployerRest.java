@@ -1,6 +1,9 @@
 package com.synaltic.deployer.rest;
 
+import com.synaltic.deployer.api.Bundle;
 import com.synaltic.deployer.api.Deployer;
+import com.synaltic.deployer.api.Feature;
+import com.synaltic.deployer.api.FeatureRepository;
 
 import javax.ws.rs.*;
 import java.util.List;
@@ -51,11 +54,33 @@ public class DeployerRest {
                 request.getPassword());
     }
 
+    @Path("/bundle/start")
+    @Consumes("application/json")
+    @POST
+    public void startBundle(DeployRequest request) throws Exception {
+        deployer.startBundle(request.getArtifactUrl(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/bundle/stop")
+    @Consumes("application/json")
+    @POST
+    public void stopBundle(DeployRequest request) throws Exception {
+        deployer.stopBundle(request.getArtifactUrl(),
+                request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
     @Path("/bundles")
     @Consumes("application/json")
     @Produces("application/json")
     @POST
-    public List<String> listBundles(BasicRequest request) throws Exception {
+    public List<Bundle> listBundles(BasicRequest request) throws Exception {
         return deployer.listBundles(request.getJmxUrl(),
                 request.getKarafName(),
                 request.getUser(),
@@ -136,7 +161,7 @@ public class DeployerRest {
     @Consumes("application/json")
     @Produces("application/json")
     @POST
-    public List<String> listFeaturesRepositories(BasicRequest request) throws Exception {
+    public List<FeatureRepository> listFeaturesRepositories(BasicRequest request) throws Exception {
         return deployer.listFeaturesRepositories(request.getJmxUrl(),
                 request.getKarafName(),
                 request.getUser(),
@@ -169,19 +194,8 @@ public class DeployerRest {
     @Consumes("application/json")
     @Produces("application/json")
     @POST
-    public List<String> listFeatures(BasicRequest request) throws Exception {
+    public List<Feature> listFeatures(BasicRequest request) throws Exception {
         return deployer.listFeatures(request.getJmxUrl(),
-                request.getKarafName(),
-                request.getUser(),
-                request.getPassword());
-    }
-
-    @Path("/features/installed")
-    @Consumes("application/json")
-    @Produces("application/json")
-    @POST
-    public List<String> listInstalledFeatures(BasicRequest request) throws Exception {
-        return deployer.listInstalledFeatures(request.getJmxUrl(),
                 request.getKarafName(),
                 request.getUser(),
                 request.getPassword());

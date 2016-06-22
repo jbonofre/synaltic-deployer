@@ -95,9 +95,7 @@ public class DeployerRestTest {
     @Test
     @Ignore
     public void listingTest() throws Exception {
-        System.out.println("This test is a second step in the use case.");
-        System.out.println("The user creates a \"meta\" feature, assembling existing feature");
-        System.out.println("Then he can install this \"meta\" feature");
+        System.out.println("WARNING: this test requires an active container.");
 
         BasicRequest request = new BasicRequest();
         request.setJmxUrl("service:jmx:rmi:///jndi/rmi://localhost:1099/karaf-root");
@@ -109,7 +107,6 @@ public class DeployerRestTest {
         System.out.println(rest.listKars(request));
         System.out.println(rest.listFeaturesRepositories(request));
         System.out.println(rest.listFeatures(request));
-        System.out.println(rest.listInstalledFeatures(request));
     }
 
     @Test
