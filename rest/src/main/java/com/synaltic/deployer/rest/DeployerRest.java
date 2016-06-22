@@ -51,6 +51,17 @@ public class DeployerRest {
                 request.getPassword());
     }
 
+    @Path("/bundles")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @POST
+    public List<String> listBundles(BasicRequest request) throws Exception {
+        return deployer.listBundles(request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
     @Path("/kar/deploy")
     @Consumes("application/json")
     @POST
@@ -68,6 +79,17 @@ public class DeployerRest {
     public void undeployKar(DeployRequest request) throws Exception {
         deployer.undeployKar(request.getArtifactUrl(),
                 request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/kars")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @POST
+    public List<String> listKars(BasicRequest request) throws Exception {
+        return deployer.listKars(request.getJmxUrl(),
                 request.getKarafName(),
                 request.getUser(),
                 request.getPassword());
@@ -110,6 +132,17 @@ public class DeployerRest {
                 request.getPassword());
     }
 
+    @Path("/feature/repositories")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @POST
+    public List<String> listFeaturesRepositories(BasicRequest request) throws Exception {
+        return deployer.listFeaturesRepositories(request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
     @Path("/feature/install")
     @Consumes("application/json")
     @POST
@@ -127,6 +160,28 @@ public class DeployerRest {
     public void uninstallFeature(DeployRequest request) throws Exception {
         deployer.uninstallFeature(request.getArtifactUrl(),
                 request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/features")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @POST
+    public List<String> listFeatures(BasicRequest request) throws Exception {
+        return deployer.listFeatures(request.getJmxUrl(),
+                request.getKarafName(),
+                request.getUser(),
+                request.getPassword());
+    }
+
+    @Path("/features/installed")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @POST
+    public List<String> listInstalledFeatures(BasicRequest request) throws Exception {
+        return deployer.listInstalledFeatures(request.getJmxUrl(),
                 request.getKarafName(),
                 request.getUser(),
                 request.getPassword());

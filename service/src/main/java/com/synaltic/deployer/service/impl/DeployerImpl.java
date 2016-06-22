@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.CompositeType;
 import javax.management.openmbean.TabularData;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
@@ -320,6 +321,19 @@ public class DeployerImpl implements Deployer {
         }
     }
 
+    public List<String> listKars(String jmxUrl, String karafName, String user, String password) throws Exception {
+        JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
+        try {
+            MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
+            ObjectName name = new ObjectName("org.apache.karaf:type=kar,name=" + karafName);
+            return ((List<String>) connection.getAttribute(name, "kars"));
+        } finally {
+            if (jmxConnector != null) {
+                jmxConnector.close();
+            }
+        }
+    }
+
     public void deployBundle(String artifactUrl, String jmxUrl, String karafName, String user, String password) throws Exception {
         JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
         try {
@@ -339,6 +353,26 @@ public class DeployerImpl implements Deployer {
             MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
             ObjectName name = new ObjectName("org.apache.karaf:type=bundle,name=" + karafName);
             connection.invoke(name, "uninstall", new Object[]{id}, new String[]{ "java.lang.String" });
+        } finally {
+            if (jmxConnector != null) {
+                jmxConnector.close();
+            }
+        }
+    }
+
+    public List<String> listBundles(String jmxUrl, String karafName, String user, String password) throws Exception {
+        JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
+        try {
+            MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
+            ObjectName name = new ObjectName("org.apache.karaf:type=bundle,name=" + karafName);
+            TabularData tabularData = (TabularData) connection.getAttribute(name, "bundles");
+            List<String> result = new ArrayList<String>();
+            for (Object value : tabularData.values()) {
+                CompositeData compositeData = (CompositeData) value;
+                String bundleName = (String) compositeData.get("Name");
+                result.add(bundleName);
+            }
+            return result;
         } finally {
             if (jmxConnector != null) {
                 jmxConnector.close();
@@ -372,6 +406,26 @@ public class DeployerImpl implements Deployer {
         }
     }
 
+    public List<String> listFeaturesRepositories(String jmxUrl, String karafName, String user, String password) throws Exception {
+        JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
+        try {
+            MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
+            ObjectName name = new ObjectName("org.apache.karaf:type=feature,name=" + karafName);
+            List<String> result = new ArrayList<String>();
+            TabularData tabularData = (TabularData) connection.getAttribute(name, "repositories");
+            for (Object value : tabularData.values()) {
+                CompositeData compositeData = (CompositeData) value;
+                String uri = (String) compositeData.get("Uri");
+                result.add(uri);
+            }
+            return result;
+        } finally {
+            if (jmxConnector != null) {
+                jmxConnector.close();
+            }
+        }
+    }
+
     public void installFeature(String feature, String jmxUrl, String karafName, String user, String password) throws Exception {
         JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
         try {
@@ -391,6 +445,51 @@ public class DeployerImpl implements Deployer {
             MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
             ObjectName name = new ObjectName("org.apache.karaf:type=feature,name=" + karafName);
             connection.invoke(name, "uninstallFeature", new Object[]{ feature }, new String[]{ "java.lang.String", });
+        } finally {
+            if (jmxConnector != null) {
+                jmxConnector.close();
+            }
+        }
+    }
+
+    public List<String> listFeatures(String jmxUrl, String karafName, String user, String password) throws Exception {
+        JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
+        try {
+            MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
+            ObjectName name = new ObjectName("org.apache.karaf:type=feature,name=" + karafName);
+            TabularData tabularData = (TabularData) connection.getAttribute(name, "features");
+            List<String> result = new ArrayList<String>();
+            for (Object value : tabularData.values()) {
+                CompositeData compositeData = (CompositeData) value;
+                String featureName = (String) compositeData.get("Name");
+                String featureVersion = (String) compositeData.get("Version");
+                boolean featureInstalled = (Boolean) compositeData.get("Installed");
+                result.add(featureName + "/" + featureVersion);
+            }
+            return result;
+        } finally {
+            if (jmxConnector != null) {
+                jmxConnector.close();
+            }
+        }
+    }
+
+    public List<String> listInstalledFeatures(String jmxUrl, String karafName, String user, String password) throws Exception {
+        JMXConnector jmxConnector = connect(jmxUrl, karafName, user, password);
+        try {
+            MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
+            ObjectName name = new ObjectName("org.apache.karaf:type=feature,name=" + karafName);
+            TabularData tabularData = (TabularData) connection.getAttribute(name, "features");
+            List<String> result = new ArrayList<String>();
+            for (Object value : tabularData.values()) {
+                CompositeData compositeData = (CompositeData) value;
+                String featureName = (String) compositeData.get("Name");
+                String featureVersion = (String) compositeData.get("Version");
+                boolean featureInstalled = (Boolean) compositeData.get("Installed");
+                if (featureInstalled)
+                    result.add(featureName + "/" + featureVersion);
+            }
+            return result;
         } finally {
             if (jmxConnector != null) {
                 jmxConnector.close();
