@@ -326,7 +326,7 @@ public class DeployerImpl implements Deployer {
         try {
             MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
             ObjectName name = new ObjectName("org.apache.karaf:type=kar,name=" + karafName);
-            return ((List<String>) connection.getAttribute(name, "kars"));
+            return ((List<String>) connection.getAttribute(name, "Kars"));
         } finally {
             if (jmxConnector != null) {
                 jmxConnector.close();
@@ -365,7 +365,7 @@ public class DeployerImpl implements Deployer {
         try {
             MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
             ObjectName name = new ObjectName("org.apache.karaf:type=bundle,name=" + karafName);
-            TabularData tabularData = (TabularData) connection.getAttribute(name, "bundles");
+            TabularData tabularData = (TabularData) connection.getAttribute(name, "Bundles");
             List<String> result = new ArrayList<String>();
             for (Object value : tabularData.values()) {
                 CompositeData compositeData = (CompositeData) value;
@@ -412,7 +412,7 @@ public class DeployerImpl implements Deployer {
             MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
             ObjectName name = new ObjectName("org.apache.karaf:type=feature,name=" + karafName);
             List<String> result = new ArrayList<String>();
-            TabularData tabularData = (TabularData) connection.getAttribute(name, "repositories");
+            TabularData tabularData = (TabularData) connection.getAttribute(name, "Repositories");
             for (Object value : tabularData.values()) {
                 CompositeData compositeData = (CompositeData) value;
                 String uri = (String) compositeData.get("Uri");
@@ -457,7 +457,7 @@ public class DeployerImpl implements Deployer {
         try {
             MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
             ObjectName name = new ObjectName("org.apache.karaf:type=feature,name=" + karafName);
-            TabularData tabularData = (TabularData) connection.getAttribute(name, "features");
+            TabularData tabularData = (TabularData) connection.getAttribute(name, "Features");
             List<String> result = new ArrayList<String>();
             for (Object value : tabularData.values()) {
                 CompositeData compositeData = (CompositeData) value;
@@ -479,7 +479,7 @@ public class DeployerImpl implements Deployer {
         try {
             MBeanServerConnection connection = jmxConnector.getMBeanServerConnection();
             ObjectName name = new ObjectName("org.apache.karaf:type=feature,name=" + karafName);
-            TabularData tabularData = (TabularData) connection.getAttribute(name, "features");
+            TabularData tabularData = (TabularData) connection.getAttribute(name, "Features");
             List<String> result = new ArrayList<String>();
             for (Object value : tabularData.values()) {
                 CompositeData compositeData = (CompositeData) value;
